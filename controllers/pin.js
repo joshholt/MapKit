@@ -14,5 +14,7 @@
 */
 
 MapKit.pinController = SC.ObjectController.create({
-  contentBinding: 'MapKit.pinsController.selection'
+  contentBinding: 'MapKit.pinsController.selection',
+  allowsMultipleContent: NO,
+  contentBindingDefault: SC.Binding.single()
 });

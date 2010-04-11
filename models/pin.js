@@ -16,13 +16,20 @@
 
 MapKit.Pin = SC.Record.extend({
   markerIcon: SC.Record.attr(String, {defaultValue: 'red-pushpin'}),
-  latitude: SC.Record.attr(String, {defaultValue: '39.138'}),
-  longitude: SC.Record.attr(String, {defaultValue: '-77.187'}),
+  name: SC.Record.attr(String, "(NO NAME)"),
+  address: SC.Record.attr(String, {defaultValue: 'Herndon, VA'}),
+  latitude: SC.Record.attr(String),
+  longitude: SC.Record.attr(String),
+  marker: SC.Record.attr(Object),
   
   googleLatLng: function() {
-    var gMaps = MapKit.MAPS_NAMESPACE;
-    return new gMaps.LatLng(this.get('latitude'), this.get('longitude'));
-  }.property('longitude','latitude').cacheable(),
+    var gMaps = MapKit.MAPS_NAMESPACE, that = this;
+    var lat = this.get('latitude'), lng = this.get('longitude');
+    var address = this.get('address');
+    if (lat && lat !== '' && lng && lng !== '') {
+      return new gMaps.LatLng(this.get('latitude'), this.get('longitude')); 
+    }
+  }.property('longitude','latitude','address').cacheable(),
   
   iconURLS: function() {
     var icon = this.get('markerIcon'), iconURL = "", shadowURL = "";

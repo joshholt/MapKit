@@ -16,6 +16,8 @@ MapKit.MapView = SC.WebView.extend({
   
   markerIcon: 'red-pushpin',
   pinsBinding: 'MapKit.pinsController.arrangedObjects',
+  pinsBindingDefault: SC.Binding.multiple(),
+  currentPins: [],
   
   _googleAjaxLoaded: NO,
   _mapDOMElement: null,
@@ -64,8 +66,16 @@ MapKit.MapView = SC.WebView.extend({
     icon.shadow = pin.get('iconURLS').shadow;
     icon.shadowSize = new ns.Size(59,32);
     marker = new ns.Marker(pin.get('googleLatLng'), {'icon':icon, 'clickable':false, 'draggable':false});
+    pin.set('marker',marker);
     //ns.Event.addListener(marker, 'dragend', function() { delegate.updateLocation(); });
     map.addOverlay(marker);
+  },
+  
+  removePin: function(pin) {
+    var map = this.get('_googleMap');
+    if (map) { 
+      map.removeOverlay(pin.get('marker'));
+    }
   },
   
   setCenter: function(pin) {
@@ -80,7 +90,8 @@ MapKit.MapView = SC.WebView.extend({
   
   clearOverlays: function() {
     var map = this.get('_googleMap');
-    map.clearOverLays();
+    map.clearOverlays();
+    this.set('currentPins',[]);
   },
   
   isMapReady: function() {
@@ -127,11 +138,13 @@ MapKit.MapView = SC.WebView.extend({
     this.set('_isMapReady',YES);
   },
   
+  _mapDidBecomeReady: function() { this._addPinsIfNeeded(); }.observes('isMapReady'),
+  
   _addPinsIfNeeded: function() {
-    SC.Logger.log("Adding Pins");
     var pins = this.get('pins'), that = this;
-    this.currentPins = [];
-    if (pins && pins.get('length') > 0) {
+    if (!this.get('isMapReady')) {
+      // noop
+    } else if (pins && pins.get('length') > 0) {
       pins.forEach(function(pin){
         if (that.currentPins.indexOf(pin) === -1) {
           that.addPin(pin);
@@ -139,7 +152,7 @@ MapKit.MapView = SC.WebView.extend({
         }
       }); 
     }
-  }.observes('pins','isMapReady'),
+  }.observes('.pins.[].length'),
   
   _documentWindow: function() {
     return this.get('_document').defaultView || this.get('_document').contentWindow;
