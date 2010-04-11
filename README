@@ -1,0 +1,29 @@
+=============================================================================
+Project:   MapKit -- A SproutCore Framework
+Copyright: ©2010 Josh Holt
+=============================================================================
+
+SproutCore's MapKit Framework
+
+Required to use this framework:
+ 1.) Create the frameworks directory if it doesn't exit in the root of your SproutCore project.
+ 2.) Clone this repo into the frameworks directory naming it "map_kit"
+ 3.) Add this line to your Buildfile
+		a.) config :all, :required => [:sproutcore, :map_kit]
+		
+What does this framework give you?
+	VIEWS
+		- MapKit.mapView
+			-- This is the main point of interaction ( the google map ).
+			-- It draws the map.
+			-- It draws the markers (pins).
+			-- It handles the removal of the markers.
+			-- and more...
+	MODELS
+		- MapKit.Pin
+			-- This model represents one pin on the mapView
+	CONTROLLERS
+		- MapKit.pinsController
+			-- This is the array controller that will hold the collection of pins on the map
+		- MapKit.pinController
+		  -- This controller holds the currently selected pin.
