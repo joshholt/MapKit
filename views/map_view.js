@@ -12,12 +12,16 @@
   @since 0.1.0
 */
 
-MapKit.MapView = SC.WebView.extend({
+sc_require('mixins/map_view_delegate');
+
+MapKit.MapView = SC.WebView.extend(MapKit.MapViewDelegate,{
   
   markerIcon: 'red-pushpin',
   pinsBinding: 'MapKit.pinsController.arrangedObjects',
   pinsBindingDefault: SC.Binding.multiple(),
   currentPins: [],
+  delegate: null, // set delegate to null by default.
+  mapName: null,
   
   _googleAjaxLoaded: NO,
   _mapDOMElement: null,
@@ -29,6 +33,7 @@ MapKit.MapView = SC.WebView.extend({
     sc_super();
     var f = this.$('iframe');
     SC.Event.add(f, 'load', this, this.viewSetup);
+    this._registerProxy();
   },
   
   viewSetup: function(){
@@ -53,50 +58,61 @@ MapKit.MapView = SC.WebView.extend({
     var doc = this._document;
     var docBody = doc.body;
     SC.Event.remove(this.$('iframe'), 'load', this, this.viewSetup);
+    this._unregisterProxy();
     sc_super();
   },
   
   addPin: function(pin) {
-    var marker;
-    var ns = MapKit.MAPS_NAMESPACE, map = this.get('_googleMap');
-    var icon = new ns.Icon(ns.DEFAULT_ICON);
-    icon.image = pin.get('iconURLS').icon;
-    icon.iconSize = new ns.Size(32,32);
-    icon.iconAnchor = new ns.Point(16,32);
-    icon.shadow = pin.get('iconURLS').shadow;
-    icon.shadowSize = new ns.Size(59,32);
-    marker = new ns.Marker(pin.get('googleLatLng'), {'icon':icon, 'clickable':false, 'draggable':false});
-    pin.set('marker',marker);
-    //ns.Event.addListener(marker, 'dragend', function() { delegate.updateLocation(); });
-    map.addOverlay(marker);
+    var del = this.get('delegate');
+    if (del && del.mapViewAddPin) {
+      del.mapViewAddPin(this, pin);
+    } else {
+      this.mapViewAddPin(this, pin);
+    }
   },
   
   removePin: function(pin) {
-    var map = this.get('_googleMap');
-    if (map) { 
-      map.removeOverlay(pin.get('marker'));
+    var del = this.get('delegate');
+    if (del && del.mapViewRemovePin) {
+      del.mapViewRemove(this, pin);
+    } else {
+      this.mapViewRemovePin(this, pin);
     }
   },
   
   setCenter: function(pin) {
-    var map = this.get('_googleMap');
-    if (map) {
-      map.setCenter(pin.get('googleLatLng'));    
+    var del = this.get('delegate');
+    if (del && del.mapViewSetCenter) {
+      del.mapViewSetCenter(this, pin);
+    } else {
+      this.mapViewSetCenter(this, pin);
     }
   },
   
   setZoom: function(zoomNum) {
-    var map = this.get('_googleMap');
-    if (map) {
-      map.setZoom(zoomNum);    
+    var del = this.get('delegate');
+    if (del && del.mapViewSetZoom) {
+      del.mapViewSetZoom(this, zoomNum);
+    } else {
+      this.mapViewSetZoom(this, zoomNum);
     }
   },
   
   clearOverlays: function() {
-    var map = this.get('_googleMap');
-    if (map) {
-      map.clearOverlays();
-      this.set('currentPins',[]);
+    var del = this.get('delegate');
+    if (del && del.mapViewClearOverLays) {
+      del.mapViewClearOverLays(this);
+    } else {
+      this.mapViewClearOverLays(this);
+    }
+  },
+  
+  moveMapToPin: function(pin) {
+    var del = this.get('delegate');
+    if (del && del.mapViewMoveMapToPin) {
+      del.mapViewMoveMapToPin(this, pin);
+    } else {
+      this.mapViewMoveMapToPin(this, pin);
     }
   },
   
@@ -162,6 +178,23 @@ MapKit.MapView = SC.WebView.extend({
   
   _documentWindow: function() {
     return this.get('_document').defaultView || this.get('_document').contentWindow;
+  },
+  
+  _registerProxy: function() {
+   var mapName = this.get('mapName') || SC.guidFor(this); 
+   var maps = MapKit.get('MAPS');
+   maps.pushObject(SC.Object.create({ key: mapName, proxy: MapKit.MapViewProxy.create({ mapView: this }) }));
+  },
+  
+  _unregisterProxy: function() {
+    var mapName = this.get('mapName') || SC.guidFor(this);
+    var maps = MapKit.get('MAPS');
+    var mapobj = maps.findProperty('key', mapName);
+    if (mapobj) {
+      maps.removeObject(mapobj);
+    } else {
+      SC.Logger.warn("Could not remove map proxy for %@".fmt(this.toString()));
+    }
   }
   
 });

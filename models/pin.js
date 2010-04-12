@@ -15,7 +15,7 @@
 */
 
 MapKit.Pin = SC.Record.extend({
-  markerIcon: SC.Record.attr(String, {defaultValue: 'red-pushpin'}),
+  markerIcon: SC.Record.attr(String, {defaultValue: 'blue-dot'}),
   name: SC.Record.attr(String, "(NO NAME)"),
   address: SC.Record.attr(String, {defaultValue: 'Herndon, VA'}),
   latitude: SC.Record.attr(String),
