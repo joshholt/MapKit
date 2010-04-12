@@ -80,18 +80,24 @@ MapKit.MapView = SC.WebView.extend({
   
   setCenter: function(pin) {
     var map = this.get('_googleMap');
-    map.setCenter(pin.get('googleLatLng'));    
+    if (map) {
+      map.setCenter(pin.get('googleLatLng'));    
+    }
   },
   
   setZoom: function(zoomNum) {
     var map = this.get('_googleMap');
-    map.setZoom(zoomNum);    
+    if (map) {
+      map.setZoom(zoomNum);    
+    }
   },
   
   clearOverlays: function() {
     var map = this.get('_googleMap');
-    map.clearOverlays();
-    this.set('currentPins',[]);
+    if (map) {
+      map.clearOverlays();
+      this.set('currentPins',[]);
+    }
   },
   
   isMapReady: function() {

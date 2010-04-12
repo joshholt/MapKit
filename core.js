@@ -44,7 +44,20 @@ MapKit = SC.Object.create(
     }
   },
   
-  
+  /*
+    Moves the center of the map to the pin.
+    Uses the selction from MapKit.pinController
+    @param [mapView] the current mapView
+  */
+  moveMapToPin: function(map, pin) {
+    SC.Logger.log("Moving to pin");
+    if (map && pin) {
+      map.setCenter(pin);
+      map.setZoom(7);
+    } else {
+      SC.Logger.log("You Must Provide a map view");
+    }
+  },
   // ..........................................................
   // NS PRIVATE FUNCTIONS
   // 
