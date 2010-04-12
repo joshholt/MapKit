@@ -14,5 +14,6 @@
 */
 
 MapKit.pinsController = SC.ArrayController.create({
-  contentBinding: 'MapKit.PINS'
+  contentBinding: 'MapKit.PINS',
+  allowsEmptySelection: NO
 });

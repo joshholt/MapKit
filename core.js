@@ -40,7 +40,9 @@ MapKit = SC.Object.create(
   */
   addPinForLatAndLng: function(point) {
     if (point && point.lat && point.lng) {
-      return this.get('store').createRecord(MapKit.Pin,{latitude: point.lat, longitude: point.lng });
+      var pin = this.get('store').createRecord(MapKit.Pin,{latitude: point.lat, longitude: point.lng });
+      MapKit.pinsController.selectObject(pin);
+      return pin;
     }
   },
   
@@ -68,9 +70,10 @@ MapKit = SC.Object.create(
       if (point) {
         lat = point.lat(); lng = point.lng();
         SC.run(function(){
-          that.get('store').createRecord(MapKit.Pin,{
+          var pin = that.get('store').createRecord(MapKit.Pin,{
             latitude: lat, longitude: lng, address: address, name: address
           });
+          MapKit.pinsController.selectObject(pin);
         });
       } else {
         alert(address + " could not be found.");
